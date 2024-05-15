@@ -3,30 +3,28 @@ import { Detail } from "./components/Detail/Detail.js";
 import { getProductById, getProducts } from "./helpers/getProducts.js";
 
 export const Router = async () => {
-  const { hash } = window.location;
-  const isDetail = hash.includes("detail");
-  const isCart = hash.includes("cart");
-  let route, id;
+  const { href } = window.location;
+  const isDetail = href.includes("detail");
+  const isCart = href.includes("cart");
+  let route = "/",
+    id;
   if (isDetail) {
-    [route, id] = hash.split("detail/").filter(Boolean);
+    [route, id] = href.split("detail/");
     route = "detail";
   } else if (isCart) {
     route = "cart";
-  } else {
-    [route] = hash.split("/").filter(Boolean);
   }
-
   switch (route) {
-    case "":
     case "#":
-    case "#/":
-    case "home":
+    case "/":
       const products = await getProducts();
       renderHome(products);
       break;
     case "detail":
       const product = await getProductById(id);
-      renderDetail(product);
+      product == null
+        ? renderNotFound(`Product with id ${id}`)
+        : renderDetail(product);
       break;
     case "cart":
       renderCart();
@@ -51,9 +49,11 @@ const renderDetail = (product) => {
 
 const renderCart = () => {
   const section = document.querySelector("#section");
-  section.innerHTML = `<h1>Cart in progress</h1>`;
+  section.innerHTML = `<h1 style="text-align: center;">Sorry, cart in progress</h1>`;
 };
 
-const renderNotFound = () => {
-  document.querySelector("#section").innerHTML = `<h1>404 Not Found</h1>`;
+const renderNotFound = (arg = "") => {
+  document.querySelector(
+    "#section"
+  ).innerHTML = `<h1 style="text-align: center;">${arg} - Not Found</h1>`;
 };
